@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Carousel Simple</title>
+
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .carousel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .slide {
+            width: 100%;
+            text-align: center;
+        }
+
+        img {
+            max-width: 80%;
+            max-height: 80vh;
+            border-radius: 12px;
+        }
+
+        .clock {
+            font-size: 6rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="carousel">
+        <component :is="slides[currentSlide]" class="slide"></component>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+/* 🖼️ Componente Imagen */
+const ImageSlide = {
+    template: `
+        <div>
+            <img src="https://picsum.photos/1200/800" alt="Imagen carrusel">
+        </div>
+    `
+};
+
+/* ⏰ Componente Reloj */
+const ClockSlide = {
+    template: `
+        <div class="clock">
+            {{ time }}
+        </div>
+    `,
+    setup() {
+        const time = ref('');
+
+        const updateTime = () => {
+            const now = new Date();
+            time.value = now.toLocaleTimeString();
+        };
+
+        let interval;
+
+        onMounted(() => {
+            updateTime();
+            interval = setInterval(updateTime, 1000);
+        });
+
+        onUnmounted(() => {
+            clearInterval(interval);
+        });
+
+        return { time };
+    }
+};
+
+/* 🚀 App principal */
+createApp({
+    components: {
+        ImageSlide,
+        ClockSlide
+    },
+    setup() {
+        const slides = ['ImageSlide', 'ClockSlide'];
+        const currentSlide = ref(0);
+
+        onMounted(() => {
+            setInterval(() => {
+                currentSlide.value = (currentSlide.value + 1) % slides.length;
+            }, 5000); // ⏱️ cambia cada 5 segundos
+        });
+
+        return {
+            slides,
+            currentSlide
+        };
+    }
+}).mount('#app');
+</script>
+
+</body>
+</html>
